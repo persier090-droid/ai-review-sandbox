@@ -1,0 +1,2002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>全链路AI需求评审沙盘｜专家会诊控制台</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Roboto, "PingFang SC", "Microsoft Yahei", sans-serif;
+    }
+
+    :root {
+      --brand: #165DFF;
+      --brand-soft: #E8F3FF;
+      --brand-hover: #0E4BDB;
+      --text-1: #1D2129;
+      --text-2: #4E5969;
+      --text-3: #86909C;
+      --line: #E5E6EB;
+      --line-soft: #F2F3F5;
+      --bg: #F5F7FA;
+      --card: #FFFFFF;
+      --success: #00B42A;
+      --warning: #FF7D00;
+      --danger: #F53F3F;
+      --info: #165DFF;
+      --radius-s: 8px;
+      --radius-m: 12px;
+      --radius-l: 18px;
+      --shadow-1: 0 4px 20px rgba(17, 48, 86, 0.06);
+      --shadow-2: 0 8px 30px rgba(17, 48, 86, 0.10);
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 12% 8%, rgba(22, 93, 255, 0.08), transparent 28%),
+        radial-gradient(circle at 88% 12%, rgba(22, 93, 255, 0.05), transparent 32%),
+        var(--bg);
+      color: var(--text-1);
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      max-width: 1720px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius-l);
+      border: 1px solid var(--line-soft);
+      box-shadow: var(--shadow-1);
+      padding: 22px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .card-title::before {
+      content: "";
+      width: 4px;
+      height: 14px;
+      border-radius: 2px;
+      background: linear-gradient(180deg, #165DFF, #4080FF);
+    }
+
+    .section-title {
+      font-size: 13px;
+      color: var(--text-2);
+      font-weight: 500;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-title .count {
+      font-size: 12px;
+      color: var(--text-3);
+      font-weight: 400;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      font-size: 13px;
+      color: var(--text-2);
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #E5E6EB;
+      border-radius: var(--radius-s);
+      padding: 10px 14px;
+      font-size: 13px;
+      background: #FFFFFF;
+      color: var(--text-1);
+      transition: border-color .2s, box-shadow .2s, background .2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(22, 93, 255, 0.12);
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    /* 左侧岗位胶囊点选区 */
+    .role-container {
+      background: #FAFBFC;
+      border: 1px solid #EDEFF2;
+      border-radius: var(--radius-m);
+      padding: 12px;
+      max-height: 310px;
+      overflow-y: auto;
+    }
+
+    .role-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .role-chip {
+      border: 1px solid #E5E6EB;
+      background: #FFFFFF;
+      color: var(--text-2);
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+      transition: all .2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .role-chip:hover {
+      border-color: #BFD6FF;
+      background: #F7FAFF;
+      transform: translateY(-1px);
+    }
+
+    .role-chip.active {
+      background: var(--brand);
+      color: #FFFFFF;
+      border-color: var(--brand);
+      box-shadow: 0 6px 16px rgba(22, 93, 255, 0.25);
+    }
+
+    .role-chip .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #C9CDD4;
+      transition: background .2s;
+    }
+
+    .role-chip.active .dot {
+      background: #FFFFFF;
+    }
+
+    .role-chip .remove {
+      margin-left: 2px;
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    .role-chip.add-custom {
+      border-style: dashed;
+      color: var(--brand);
+      background: #F7FAFF;
+    }
+
+    .role-chip.add-custom:hover {
+      background: #E8F3FF;
+    }
+
+    /* 按钮 */
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 11px 16px;
+      border-radius: var(--radius-s);
+      transition: all .2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #165DFF, #4080FF);
+      color: #FFFFFF;
+      box-shadow: 0 8px 20px rgba(22, 93, 255, 0.28);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0E4BDB, #165DFF);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(22, 93, 255, 0.34);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      background: #BFD6FF;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-default {
+      background: #F2F3F5;
+      color: var(--text-1);
+      border: 1px solid #E5E6EB;
+    }
+
+    .btn-default:hover {
+      background: #EDEFF2;
+    }
+
+    .btn-warning {
+      background: #FFF3E2;
+      color: #D97000;
+      border: 1px solid #FFD28B;
+    }
+
+    .btn-warning:hover {
+      background: #FFE2B8;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #00B42A, #23C343);
+      color: #FFFFFF;
+      box-shadow: 0 8px 20px rgba(0, 180, 42, 0.24);
+    }
+
+    .btn-success:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(0, 180, 42, 0.30);
+    }
+
+    /* 右侧主区域 */
+    .main-card {
+      background: #FFFFFF;
+      border: 1px solid #EDEFF2;
+      border-radius: var(--radius-l);
+      box-shadow: var(--shadow-1);
+      padding: 22px;
+    }
+
+    .main-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .main-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-1);
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #C9CDD4;
+    }
+
+    .status-dot.wait { background: #C9CDD4; }
+    .status-dot.running { background: #165DFF; box-shadow: 0 0 0 4px rgba(22, 93, 255, 0.14); }
+    .status-dot.end { background: #00B42A; box-shadow: 0 0 0 4px rgba(0, 180, 42, 0.14); }
+
+    .status-tag {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #F2F3F5;
+      color: var(--text-2);
+    }
+
+    .status-tag.running { background: #E8F3FF; color: #165DFF; }
+    .status-tag.end { background: #E6FFED; color: #007D39; }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: #F7FAFF;
+      border: 1px solid #EDEFF2;
+      border-radius: var(--radius-m);
+      padding: 6px;
+      margin-bottom: 16px;
+    }
+
+    .tab-item {
+      flex: 1;
+      text-align: center;
+      padding: 9px 12px;
+      font-size: 13px;
+      color: var(--text-2);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+
+    .tab-item:hover {
+      color: var(--text-1);
+      background: rgba(255,255,255,0.6);
+    }
+
+    .tab-item.active {
+      background: #FFFFFF;
+      color: var(--brand);
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(22, 93, 255, 0.12);
+    }
+
+    /* 干预提示 */
+    .alert-banner {
+      background: linear-gradient(90deg, #FFF7E8, #FFF3E2);
+      border: 1px solid #FFCB74;
+      color: #D97000;
+      padding: 12px 14px;
+      border-radius: var(--radius-s);
+      margin-bottom: 14px;
+      font-size: 13px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .alert-banner.show {
+      display: flex;
+      animation: slideIn .25s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Tab 面板 */
+    .tab-panel {
+      display: none;
+      animation: fadeIn .25s ease;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 聊天区 */
+    .chat-container {
+      height: 440px;
+      overflow-y: auto;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(22, 93, 255, 0.06), transparent 30%),
+        #FAFBFC;
+      border: 1px solid #EDEFF2;
+      border-radius: var(--radius-m);
+      padding: 18px;
+    }
+
+    .msg-wrap {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      animation: msgIn .3s ease;
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg-self {
+      flex-direction: row-reverse;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #FFFFFF;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #86909C, #4E5969);
+    }
+
+    .msg-self .avatar {
+      background: linear-gradient(135deg, #165DFF, #4080FF);
+    }
+
+    .msg-other .avatar {
+      background: linear-gradient(135deg, #4080FF, #82B1FF);
+    }
+
+    .msg-box {
+      max-width: 72%;
+      background: #FFFFFF;
+      border: 1px solid #EDEFF2;
+      border-radius: 16px;
+      padding: 12px 14px;
+      box-shadow: 0 4px 14px rgba(17, 48, 86, 0.04);
+      position: relative;
+    }
+
+    .msg-self .msg-box {
+      background: linear-gradient(135deg, #165DFF, #4080FF);
+      color: #FFFFFF;
+      border-color: #165DFF;
+      box-shadow: 0 8px 20px rgba(22, 93, 255, 0.18);
+    }
+
+    .msg-name {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .msg-self .msg-name {
+      color: #CFE0FF;
+      text-align: right;
+    }
+
+    .msg-intervene-tag {
+      display: inline-block;
+      padding: 1px 8px;
+      margin-left: 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.25);
+      color: #FFFFFF;
+      vertical-align: middle;
+    }
+
+    .msg-other .msg-intervene-tag {
+      background: #E8F3FF;
+      color: var(--brand);
+    }
+
+    .msg-text {
+      font-size: 13px;
+      line-height: 1.65;
+      color: var(--text-1);
+      white-space: pre-wrap;
+    }
+
+    .msg-self .msg-text {
+      color: #FFFFFF;
+    }
+
+    .msg-time {
+      font-size: 11px;
+      color: #C9CDD4;
+      margin-top: 6px;
+    }
+
+    .msg-self .msg-time {
+      text-align: right;
+      color: #CFE0FF;
+    }
+
+    .msg-system {
+      justify-content: center;
+    }
+
+    .msg-system .msg-box {
+      background: #F7FAFF;
+      color: var(--text-2);
+      text-align: center;
+      font-size: 12px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid #E5F0FF;
+    }
+
+    /* 干预输入区 */
+    .intervene-area {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      background: #FAFBFC;
+      border: 1px solid #EDEFF2;
+      border-radius: var(--radius-m);
+      padding: 12px;
+    }
+
+    .intervene-area input {
+      flex: 1;
+      background: #FFFFFF;
+    }
+
+    /* 结果面板 */
+    .result-panel {
+      display: none;
+    }
+
+    .result-panel.show {
+      display: block;
+    }
+
+    .summary-block {
+      background: linear-gradient(135deg, #F7FAFF, #E8F3FF);
+      border: 1px solid #D0E5FF;
+      border-radius: var(--radius-m);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .summary-block h4 {
+      font-size: 14px;
+      color: var(--brand);
+      margin-bottom: 10px;
+    }
+
+    .summary-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .meta-pill {
+      background: #FFFFFF;
+      border: 1px solid #D0E5FF;
+      color: var(--text-2);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+
+    .meta-pill b {
+      color: var(--text-1);
+      margin-right: 4px;
+    }
+
+    .question-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .question-item {
+      background: #FFFFFF;
+      border: 1px solid #EDEFF2;
+      border-radius: var(--radius-s);
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--text-1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .question-item .left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .question-item .owner {
+      color: var(--text-3);
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .question-item.is-solved .q-text {
+      text-decoration: line-through;
+      color: var(--text-3);
+    }
+
+    .question-item.is-solved .risk-tag {
+      opacity: 0.4;
+    }
+
+    .q-checkbox {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .q-checkbox input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .q-checkmark {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid #C9CDD4;
+      border-radius: 5px;
+      background: #FFFFFF;
+      transition: all .15s ease;
+    }
+
+    .q-checkbox:hover .q-checkmark {
+      border-color: var(--brand);
+    }
+
+    .q-checkbox input:checked + .q-checkmark {
+      background: var(--brand);
+      border-color: var(--brand);
+    }
+
+    .q-checkbox input:checked + .q-checkmark::after {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 2px;
+      width: 5px;
+      height: 9px;
+      border: solid #FFFFFF;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .risk-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #FFFFFF;
+      flex-shrink: 0;
+    }
+
+    .risk-tag.high { background: #F53F3F; }
+    .risk-tag.mid { background: #FF7D00; }
+    .risk-tag.low { background: #00B42A; }
+
+    /* 分数卡片 */
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .score-card {
+      background: #FFFFFF;
+      border: 1px solid #EDEFF2;
+      border-radius: var(--radius-m);
+      padding: 16px 14px;
+      text-align: center;
+      transition: transform .2s;
+    }
+
+    .score-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-2);
+    }
+
+    .score-label {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-bottom: 6px;
+    }
+
+    .score-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-1);
+    }
+
+    .score-card.good .score-value { color: #00B42A; }
+    .score-card.mid .score-value { color: #FF7D00; }
+    .score-card.bad .score-value { color: #F53F3F; }
+
+    .score-bar {
+      width: 100%;
+      height: 6px;
+      background: #F2F3F5;
+      border-radius: 999px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #165DFF, #4080FF);
+      transition: width .4s ease;
+    }
+
+    .score-card.good .score-bar-fill { background: linear-gradient(90deg, #00B42A, #23C343); }
+    .score-card.mid .score-bar-fill { background: linear-gradient(90deg, #FF7D00, #FFA940); }
+    .score-card.bad .score-bar-fill { background: linear-gradient(90deg, #F53F3F, #FF7875); }
+
+    /* 风险看板 */
+    .risk-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .risk-card {
+      border-radius: var(--radius-m);
+      padding: 16px;
+      background: #FFFFFF;
+      border: 1px solid #EDEFF2;
+    }
+
+    .risk-card h4 {
+      font-size: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .risk-card .risk-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .risk-item {
+      background: #FFFFFF;
+      border: 1px solid #EDEFF2;
+      border-radius: var(--radius-s);
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--text-1);
+    }
+
+    .risk-item .risk-owner {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-bottom: 4px;
+    }
+
+    .risk-card.high { border-color: #FFD8D8; background: linear-gradient(180deg, #FFF7F7, #FFFFFF); }
+    .risk-card.high h4 { color: #F53F3F; }
+    .risk-card.mid { border-color: #FFE7BF; background: linear-gradient(180deg, #FFFBF0, #FFFFFF); }
+    .risk-card.mid h4 { color: #FF7D00; }
+    .risk-card.low { border-color: #C8F1D3; background: linear-gradient(180deg, #F3FFF6, #FFFFFF); }
+    .risk-card.low h4 { color: #00B42A; }
+
+    /* 表格 */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th, td {
+      border: 1px solid #EDEFF2;
+      padding: 12px;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      background: #FAFBFC;
+      color: var(--text-2);
+      font-weight: 600;
+    }
+
+    tr:hover td {
+      background: #FAFBFC;
+    }
+
+    .priority-tag {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .priority-high { background: #FFECE8; color: #F53F3F; }
+    .priority-mid { background: #FFF7E8; color: #D97000; }
+    .priority-low { background: #E6FFED; color: #007D39; }
+
+    /* 文档区 */
+    .doc-actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .prd-block {
+      background: #FAFBFC;
+      border: 1px solid #EDEFF2;
+      border-radius: var(--radius-m);
+      padding: 20px;
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      max-height: 520px;
+      overflow: auto;
+    }
+
+    /* 滚动条美化 */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D9DEE4;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #C9CDD4;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 40px;
+      transform: translateX(-50%) translateY(20px);
+      background: #1D2129;
+      color: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all .3s ease;
+      z-index: 999;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- 左侧配置面板 -->
+  <div class="card">
+    <div class="card-title">全链路沙盘配置中心</div>
+
+    <div class="form-group">
+      <label>业务场景</label>
+      <select id="bizScene">
+        <option value="ktv">KTV点歌机｜软硬件融合业务</option>
+        <option value="car">车载智能终端｜车机软硬件</option>
+        <option value="saas">企业SaaS后台｜云端业务</option>
+        <option value="app">移动端APP｜用户端产品</option>
+        <option value="web">Web管理平台｜运营后台</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <div class="section-title">
+        <span>参会岗位</span>
+        <span class="count" id="roleCount">已选 9 人</span>
+      </div>
+      <div class="role-container">
+        <div class="role-grid" id="roleBox"></div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>本次迭代需求</label>
+      <textarea id="reqInput"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>运行模式</label>
+      <select id="runMode">
+        <option value="demo">演示模式｜稳定答辩</option>
+        <option value="ai">AI实时生成｜真实落地</option>
+      </select>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn-primary" id="startBtn">启动评审</button>
+      <button class="btn-default" id="resetBtn">重置</button>
+    </div>
+  </div>
+
+  <!-- 右侧主区域 -->
+  <div class="main-card">
+    <div class="main-header">
+      <div class="main-title">全链路跨角色评审沙盘</div>
+      <div class="status-row">
+        <span class="status-dot wait" id="statusDot"></span>
+        <span class="status-tag" id="statusTag">待启动</span>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab-item active" data-tab="chat">会议评审</div>
+      <div class="tab-item" data-tab="score">智能评测</div>
+      <div class="tab-item" data-tab="risk">风险看板</div>
+      <div class="tab-item" data-tab="todo">待办任务</div>
+      <div class="tab-item" data-tab="prd">交付文档</div>
+    </div>
+
+    <div class="alert-banner" id="alertBanner">已收到需求变更，评审继续推演</div>
+
+    <!-- 会议评审 -->
+    <div class="tab-panel active" id="panel-chat">
+      <div class="chat-container" id="chatBox"></div>
+      <div class="intervene-area">
+        <input id="interveneInput" placeholder="输入需求变更，实时干预评审推演…" />
+        <button class="btn-warning" id="interveneBtn">提交变更</button>
+        <button class="btn-success" id="endBtn">结束评审</button>
+      </div>
+    </div>
+
+    <!-- 智能评测 -->
+    <div class="tab-panel" id="panel-score">
+      <div class="result-panel" id="scoreResultPanel">
+        <div class="summary-block">
+          <h4>本次评审结论</h4>
+          <div class="summary-meta">
+            <span class="meta-pill"><b>疑点</b><span id="summaryQuestionCount">0</span> 项</span>
+            <span class="meta-pill"><b>高风险</b><span id="summaryHighCount">0</span></span>
+            <span class="meta-pill"><b>中风险</b><span id="summaryMidCount">0</span></span>
+            <span class="meta-pill"><b>低风险</b><span id="summaryLowCount">0</span></span>
+          </div>
+          <div class="question-list" id="summaryQuestionList"></div>
+        </div>
+
+        <h3 style="font-size:14px;color:var(--text-1);margin-bottom:4px;">需求全维度评测</h3>
+        <p style="font-size:12px;color:var(--text-3);margin-bottom:12px;">评分依据：疑点数量、风险等级与岗位维度权重综合计算</p>
+        <div class="score-grid" id="scoreGrid"></div>
+      </div>
+    </div>
+
+    <!-- 风险看板 -->
+    <div class="tab-panel" id="panel-risk">
+      <div class="result-panel" id="riskResultPanel">
+        <h3 style="font-size:14px;color:var(--text-1);margin-bottom:4px;">分级风险清单</h3>
+        <p style="font-size:12px;color:var(--text-3);margin-bottom:12px;">风险与评审疑点同源，按高/中/低自动归类</p>
+        <div class="risk-grid" id="riskGrid"></div>
+      </div>
+    </div>
+
+    <!-- 待办任务 -->
+    <div class="tab-panel" id="panel-todo">
+      <div class="result-panel" id="todoResultPanel">
+        <h3 style="font-size:14px;color:var(--text-1);margin-bottom:4px;">全角色待办清单</h3>
+        <p style="font-size:12px;color:var(--text-3);margin-bottom:12px;">仅针对本次参会角色生成后续动作</p>
+        <table>
+          <thead>
+            <tr><th>岗位</th><th>待办事项</th><th>优先级</th></tr>
+          </thead>
+          <tbody id="todoTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 交付文档 -->
+    <div class="tab-panel" id="panel-prd">
+      <div class="result-panel" id="prdResultPanel">
+        <div class="doc-actions">
+          <button class="btn-default" id="genDocBtn">生成交付文档</button>
+          <button class="btn-default" id="copyResultBtn">复制结果</button>
+        </div>
+        <div id="docArea" style="display:none;">
+          <h3 style="font-size:14px;color:var(--text-1);margin-bottom:4px;">评审交付文档</h3>
+          <p style="font-size:12px;color:var(--text-3);margin-bottom:12px;">疑点较多时输出待确认清单，疑点收敛后输出PRD</p>
+          <div class="prd-block" id="docContent"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ====================== 角色定义 ======================
+let ALL_ROLES = [
+  {key:"pd",name:"产品经理",avatar:"产",checked:true},
+  {key:"sales",name:"销售/售前",avatar:"销",checked:true},
+  {key:"op",name:"运营",avatar:"运",checked:true},
+  {key:"project",name:"项目实施",avatar:"项",checked:true},
+  {key:"client",name:"客户端研发",avatar:"客",checked:true},
+  {key:"server",name:"服务端研发",avatar:"服",checked:true},
+  {key:"h5",name:"H5/前端开发",avatar:"H5",checked:true},
+  {key:"test",name:"测试工程师",avatar:"测",checked:true},
+  {key:"service",name:"售后运维",avatar:"维",checked:true},
+];
+
+// ====================== 多类型对话语料 ======================
+const KTV_DIALOG_POOL = {
+  pd_answer: [
+    "本次功能触发条件：点歌完成后自动触发数字人片段，也支持手动点击关闭。歌曲切换时，立即终止当前动画。",
+    "老机型硬件限制，V3及以下点歌机不支持，只支持V4及以上硬件版本。",
+    "素材资源采用本地预缓存+CDN按需拉取，弱网下优先播放本地缓存兜底资源。",
+    "资源鉴权接口采用门店+包厢双维度鉴权，按门店维度开通权限。"
+  ],
+  question: [
+    {text:"本次功能触发条件是什么？点歌后自动播放还是手动点击？",level:"high",category:"pd"},
+    {text:"包厢切换歌曲时，当前内容是立即中断还是播放完当前片段？",level:"high",category:"pd"},
+    {text:"这个功能可以作为门店增值卖点吗？门店是否需要额外付费开通？",level:"mid",category:"sales"},
+    {text:"客户会问老机型能不能支持，对外口径怎么定义？",level:"high",category:"sales"},
+    {text:"后台是否支持上传新素材？素材审核、版本管理怎么做？",level:"mid",category:"op"},
+    {text:"需要统计哪些运营数据：播放次数、用户触发率？",level:"low",category:"op"},
+    {text:"老款点歌机硬件性能是否足够？最低硬件配置要求？",level:"high",category:"project"},
+    {text:"资源包推送升级会不会占用门店带宽，升级时需要停机吗？",level:"mid",category:"project"},
+    {text:"点歌机客户端需要预加载资源吗？本地缓存策略怎么设计？",level:"mid",category:"client"},
+    {text:"资源损坏、文件缺失，客户端如何自动校验并降级处理？",level:"high",category:"client"},
+    {text:"素材资源的版本管理、CDN分发、资源鉴权接口如何设计？",level:"mid",category:"server"},
+    {text:"需要上报播放埋点数据，高并发下接口压力评估怎么做？",level:"mid",category:"server"},
+    {text:"手机扫码预览，不同手机分辨率适配、弱网加载策略怎么处理？",level:"mid",category:"h5"},
+    {text:"H5页面是否提供预览效果？加载失败、资源缺失的兜底页面？",level:"low",category:"h5"},
+    {text:"低配机型解码、多首歌连续切换、断网资源加载、资源损坏降级场景，是否需要覆盖？",level:"high",category:"test"},
+    {text:"多分辨率屏幕、不同固件版本点歌机做兼容性回归测试吗？",level:"mid",category:"test"},
+    {text:"门店反馈播放黑屏、失败，有没有日志可以远程定位资源/解码问题？",level:"high",category:"service"},
+    {text:"售后排查手册需要包含哪些故障现象、快速定位步骤？",level:"low",category:"service"},
+  ],
+  followUp: {
+    sales: ["如果老机型不支持，存量客户会有大量投诉，有没有补偿方案？", "这个功能能不能包装成增值套餐？定价策略和竞品比有优势吗？"],
+    project: ["如果分批灰度上线，那升级包推送策略和回滚机制要提前准备。", "全国门店量级这么大，全量推送需要多久？期间出问题怎么止损？"],
+    test: ["既然有硬件门槛，那测试机需要覆盖最低配置机型，增加专项压力测试。", "多首歌连续切换、资源并发加载，会不会出现内存泄漏？"],
+    client: ["预加载资源会占用本地硬盘，门店硬盘不足的场景怎么处理？", "低性能机型解码动画会不会卡顿掉帧？有没有降级策略？"],
+    server: ["CDN分发大体积素材，带宽成本会上涨，需要评估费用。", "百万级门店同时拉取资源，源站压力怎么应对？"],
+    h5: ["弱网兜底方案，那H5预览的超时阈值需要定义。", "不同品牌手机扫码预览，兼容性怎么保障？"],
+    op: ["素材上传审核流程，需要设置审核人，避免违规素材上线。", "素材效果数据怎么统计？点击率、完播率有没有埋点？"],
+    service: ["日志采集会占用设备性能，是否可配置开关？", "门店反馈播放失败，能不能远程触发诊断并自动上报日志？"]
+  },
+  pd_counter: [
+    "这个问题我们考虑过，当前版本先覆盖主流机型，老机型后续通过固件升级逐步支持。",
+    "成本方面我们做过测算，CDN采用分层缓存+热点预推，整体费用在预算范围内。",
+    "审核流程我们会接入运营后台，设置二级审核机制，违规素材一键下架。",
+    "硬盘不足的场景，客户端会自动清理7天以上未播放的冷数据，释放空间。",
+    "日志量很小，都是结构化文本，单店日均不超过1MB，对性能没有影响。"
+  ],
+  interveneQuestionPool: [
+    {text:"变更后老机型兼容性是否重新评估？会不会影响存量客户体验？",level:"high",category:"sales"},
+    {text:"需求变更后开发量增加多少？原迭代周期是否需要顺延？",level:"high",category:"project"},
+    {text:"变更涉及的接口字段是否需要兼容老版本？数据迁移方案有吗？",level:"mid",category:"server"},
+    {text:"客户端本地缓存策略是否需要调整？资源淘汰机制怎么重新设计？",level:"mid",category:"client"},
+    {text:"变更后的UI交互是否需要重做？用户操作路径有没有变化？",level:"mid",category:"h5"},
+    {text:"新增的边界场景测试用例需要补充多少？回归测试范围怎么定？",level:"mid",category:"test"},
+    {text:"运营后台是否需要新增配置项？素材审核流程要不要调整？",level:"low",category:"op"},
+    {text:"变更上线后，门店售后排查手册是否需要同步更新？",level:"low",category:"service"},
+    {text:"变更后的功能与原需求是否存在冲突？产品逻辑有没有矛盾点？",level:"high",category:"pd"},
+    {text:"数据统计口径是否变化？原有埋点是否需要调整？",level:"low",category:"op"},
+    {text:"变更会不会引入新的安全风险？鉴权逻辑有没有漏洞？",level:"mid",category:"server"},
+    {text:"多端（点歌机/手机/后台）一致性怎么保障？会不会出现数据不同步？",level:"mid",category:"h5"},
+  ]
+}
+
+let globalQuestions = [];
+
+// ====================== 通用干预语料（非KTV场景） ======================
+const GENERIC_INTERVENE_QUESTIONS = [
+  {text:"需求变更后，原排期是否需要调整？对交付节点影响多大？",level:"high",category:"project"},
+  {text:"变更是否涉及接口字段变化？老版本兼容性怎么保障？",level:"high",category:"server"},
+  {text:"客户端改动量有多大？是否需要发版？灰度策略是什么？",level:"mid",category:"client"},
+  {text:"变更后的UI交互逻辑是否清晰？用户学习成本高不高？",level:"mid",category:"h5"},
+  {text:"变更会不会带来新的测试盲区？回归范围怎么界定？",level:"mid",category:"test"},
+  {text:"运营后台是否需要同步调整？配置项、数据报表有没有变化？",level:"low",category:"op"},
+  {text:"变更对客户价值是什么？能不能作为新的销售卖点？",level:"mid",category:"sales"},
+  {text:"售后流程是否需要更新？用户反馈问题口径是否变化？",level:"low",category:"service"},
+  {text:"变更与原产品定位是否一致？会不会造成功能冗余？",level:"mid",category:"pd"},
+  {text:"数据埋点是否需要新增或调整？统计口径有没有变化？",level:"low",category:"op"},
+  {text:"安全方面有没有新风险？权限控制、数据脱敏是否需要重新评估？",level:"mid",category:"server"},
+  {text:"多端展示一致性怎么保障？不同终端会不会有体验差异？",level:"mid",category:"h5"},
+];
+
+const GENERIC_PD_ANSWERS = [
+  "排期方面我们已经做了评估，新增工作量控制在1个迭代内，可以接受。",
+  "兼容性是底线，所有接口变更都会做向下兼容，老版本不受影响。",
+  "用户体验是本次变更的核心目标，交互会走多轮用研验证。",
+  "安全性我们会联合安全团队做专项评审，杜绝新增风险点。",
+  "数据统计口径保持不变，新增埋点不影响原有报表。"
+];
+
+const GENERIC_FOLLOWUPS = {
+  sales: ["如果客户问起变更原因，对外统一口径是什么？", "变更后产品定价是否需要调整？"],
+  op: ["后台配置项更新后，存量数据怎么迁移？", "运营人员培训材料和操作手册什么时候到位？"],
+  project: ["变更带来的额外工作量，资源是否需要协调补充？", "如果延期，有没有优先级调整方案？"],
+  client: ["客户端改动会不会影响启动速度和性能指标？", "离线场景下变更功能是否可用？"],
+  server: ["接口变更是否需要同步通知所有调用方？", "高并发场景下新逻辑的性能有没有压测？"],
+  h5: ["多端适配工作量评估了吗？低端设备性能怎么样？", "弱网环境下交互体验怎么保障？"],
+  test: ["新增场景测试用例什么时候提供？", "是否需要安排专项测试？自动化覆盖率够不够？"],
+  service: ["变更上线后用户投诉预计会不会增加？", "售后排查工具和日志是否同步更新？"]
+};
+
+function pickRandom(arr, count = 1) {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
+}
+
+function getCheckedRoles() {
+  return ALL_ROLES.filter(r => r.checked);
+}
+
+// 提取需求关键词（简单取前几个核心名词片段）
+function extractReqTopic(req, maxLen = 18) {
+  if (!req) return "本功能";
+  const cleaned = req.replace(/[，。、！？；：,.!?;:"'\n\r\t]/g, " ").trim();
+  return cleaned.length > maxLen ? cleaned.slice(0, maxLen) + "…" : cleaned;
+}
+
+// 基于需求文本 + 角色，动态生成针对性评审话术
+function generateRoleQuestion(roleKey, roleName, reqText, round) {
+  const topic = extractReqTopic(reqText);
+  const templates = {
+    sales: [
+      `这个「${topic}」功能，对外能作为核心卖点吗？客户付费意愿和竞品差异化怎么讲？`,
+      `客户最关心的是${topic}的实际效果，有没有量化的价值指标？比如转化率、留存提升多少？`,
+      `如果${topic}上线后效果不达预期，有没有回退或补偿方案？销售对外口径怎么统一？`
+    ],
+    op: [
+      `「${topic}」上线后，后台需要哪些配置项？素材、开关、数据报表怎么设计？`,
+      `${topic}的运营数据怎么埋点？核心指标看哪些？是否需要单独看板？`,
+      `有没有考虑${topic}的审核流程？避免违规内容或错误配置直接上线。`
+    ],
+    project: [
+      `「${topic}」的开发量评估了吗？当前排期能不能吃得下？需不需要协调额外资源？`,
+      `${topic}上线是全量还是灰度？灰度策略、回滚方案、风险预案有没有准备？`,
+      `存量用户/老版本设备对${topic}的兼容性怎么处理？会不会有大量投诉？`
+    ],
+    client: [
+      `${topic}在客户端本地需要预加载资源吗？缓存策略、淘汰机制怎么设计？`,
+      `低配置设备跑${topic}会不会性能不够？有没有卡顿、发热、闪退风险？`,
+      `${topic}的异常降级方案是什么？资源损坏、加载失败时用户看到什么？`
+    ],
+    server: [
+      `「${topic}」涉及哪些新增接口？幂等、鉴权、限流怎么保障？`,
+      `${topic}的高并发场景压力评估了吗？峰值QPS大概多少？需不需要扩容？`,
+      `数据存储方案是什么？${topic}产生的数据量级预估有多大？`
+    ],
+    h5: [
+      `${topic}的H5页面适配哪些终端？不同分辨率、弱网环境体验怎么保障？`,
+      `「${topic}」的交互流程有没有完整原型？异常状态、空状态、加载状态怎么设计？`,
+      `H5和客户端/服务端的数据交互方式是什么？${topic}会不会有跨域或安全问题？`
+    ],
+    test: [
+      `「${topic}」的测试边界怎么定？哪些是核心场景必须覆盖？优先级怎么排？`,
+      `${topic}的异常分支、边界条件、并发场景需要专项测试吗？用例量预估多少？`,
+      `兼容性测试范围有哪些？${topic}在不同版本、不同设备上会不会出问题？`
+    ],
+    service: [
+      `${topic}上线后，售后常见问题预计有哪些？排查手册、FAQ什么时候准备好？`,
+      `用户反馈${topic}有问题时，能不能远程定位？日志够不够排查用？`,
+      `「${topic}」故障时有没有快速止损手段？比如开关降级、远程禁用。`
+    ],
+    pd: [
+      `${topic}的核心价值主张是什么？为什么现在做？优先级依据是什么？`,
+      `「${topic}」的成功指标怎么定义？上线后怎么验证有没有达到预期？`
+    ]
+  };
+  const pool = templates[roleKey] || [`「${topic}」这块我们需要更详细的说明，才能评估落地风险。`];
+  const idx = round % pool.length;
+  return pool[idx];
+}
+
+// 生成 PM 针对性应答
+function generatePdAnswer(reqText, questionHint) {
+  const topic = extractReqTopic(reqText);
+  const answers = [
+    `${topic}的核心目标是提升用户体验，这一块我们做过用户调研，需求真实存在。具体落地方案我们可以会后再细化。`,
+    `关于${questionHint || "大家提到的问题"}，我们考虑过：当前版本先覆盖主流场景，边缘场景留到下一期迭代，优先保证主流程稳定。`,
+    `${topic}的优先级是经过业务侧确认的，排期和资源已经协调好，风险整体可控。`,
+    `性能和兼容性我们会在开发阶段重点验证，灰度阶段持续观察，有问题随时回滚。`
+  ];
+  return pickRandom(answers, 1)[0];
+}
+
+// 生成角色追问/反驳话术
+function generateRoleFollowUp(roleKey, roleName, reqText) {
+  const topic = extractReqTopic(reqText);
+  const followUps = {
+    sales: [`如果${topic}效果不达预期，客户投诉怎么应对？有没有退费风险？`, `这个功能能不能包装成增值服务单独收费？`],
+    op: [`${topic}的数据看板什么时候能出？运营需要第一时间看到效果。`, `素材审核流程不能省，不然很容易出合规问题。`],
+    project: [`排期如果压缩，那质量怎么保障？要不要砍掉一些非核心功能？`, `灰度比例和周期需要提前定好，别到时候临时拍脑袋。`],
+    client: [`本地存储占用是个问题，用户硬盘不足时怎么办？有没有自动清理机制？`, `低配机型性能指标有没有基线？低于多少就不展示${topic}？`],
+    server: [`接口响应时间SLA是多少？${topic}对整体服务性能影响大不大？`, `数据一致性怎么保障？会不会出现脏数据？`],
+    h5: [`不同端的UI一致性怎么保障？会不会出现iOS和安卓表现不一样？`, `加载超时阈值定多少？超时后降级成什么样子？`],
+    test: [`自动化测试覆盖率要求多少？${topic}的核心流程必须覆盖吧？`, `线上灰度期间的异常监控有没有对接？出问题能及时告警吗？`],
+    service: [`故障排查路径能不能简化？最好能一键诊断，不然售后效率太低。`, `用户培训材料和FAQ要提前准备，不然上线后投诉会爆。`]
+  };
+  const pool = followUps[roleKey] || [`${topic}的细节还需要再确认一下，不然落地容易出问题。`];
+  return pickRandom(pool, 1)[0];
+}
+
+function buildKtvMultiScript(userReq) {
+  const script = [];
+  const checkedRoles = getCheckedRoles();
+  globalQuestions = [];
+
+  // PM 开场（蓝色气泡）
+  script.push({role:"pd",name:"产品经理",text:`本次迭代需求：${userReq}\n请各位参会岗位从各自专业角度评审，提出风险点和疑问。`});
+
+  // 第一轮：各角色依次提出核心疑问
+  const nonPdRoles = checkedRoles.filter(r => r.key !== "pd");
+  const firstRoundQuestions = [];
+  for (const r of nonPdRoles) {
+    const qText = generateRoleQuestion(r.key, r.name, userReq, 0);
+    const q = {
+      text: qText,
+      level: r.key === "client" || r.key === "server" || r.key === "project" ? "high" : (r.key === "test" || r.key === "sales" ? "mid" : "low"),
+      category: r.key,
+      owner: r.name,
+      solved: false
+    };
+    firstRoundQuestions.push(q);
+    globalQuestions.push(q);
+    script.push({role: r.key, name: r.name, text: qText});
+  }
+
+  // PM 回应前 2 个高风险问题
+  const highProfile = firstRoundQuestions.filter(q => q.level === "high").slice(0, 2);
+  if (highProfile.length > 0) {
+    const hint = highProfile.map(q => q.owner + "提到的" + extractReqTopic(q.text, 10)).join("、");
+    script.push({role:"pd",name:"产品经理",text:`关于${hint}这几个核心问题，我统一回应一下：${generatePdAnswer(userReq, "核心风险")}`});
+  }
+
+  // 第二轮：随机 3-4 个角色针对 PM 回答继续追问
+  const followRoles = pickRandom(nonPdRoles, Math.min(Math.max(3, Math.floor(nonPdRoles.length * 0.5)), nonPdRoles.length));
+  for (const r of followRoles) {
+    const followText = generateRoleFollowUp(r.key, r.name, userReq);
+    script.push({role: r.key, name: r.name, text: followText});
+    // 追问作为新增疑点
+    const newQ = {
+      text: followText.length > 45 ? followText.slice(0, 42) + "…" : followText,
+      level: "mid",
+      category: r.key,
+      owner: r.name,
+      solved: false
+    };
+    globalQuestions.push(newQ);
+  }
+
+  // PM 再次回应并做阶段性总结
+  script.push({role:"pd",name:"产品经理",text:`感谢各位的深入提问。${generatePdAnswer(userReq, "落地细节")} 具体细节我们会后逐项对齐，确保各方风险可控。`});
+
+  // 第三轮：跨角色互动——某角色补充另一角色的观点
+  const crossRoles = pickRandom(nonPdRoles, Math.min(2, nonPdRoles.length));
+  if (crossRoles.length >= 2) {
+    const r1 = crossRoles[0];
+    const r2 = crossRoles[1];
+    script.push({role: r1.key, name: r1.name, text:`补充一下，我同意${r2.name}的观点，「${extractReqTopic(userReq, 8)}」这块如果边界不先明确，后续返工风险确实很大。`});
+  }
+
+  script.push({role:"pd",name:"产品经理",text:"好的，各位的疑问和建议我都记录下来了。我们汇总一下本次评审的所有疑点，评估整体风险和落地可行性。"});
+  return script;
+}
+
+function buildInterveneScript(changeText) {
+  const script = [];
+  const checkedRoles = getCheckedRoles().filter(r => r.key !== "pd");
+
+  // PM 发布变更（蓝色气泡，带人工干预标记）
+  script.push({
+    role: "pd",
+    name: "产品经理",
+    text: changeText,
+    isIntervene: true
+  });
+
+  // 第一轮：各角色针对变更内容提出新疑问（基于变更文本动态生成）
+  const activeRoles = pickRandom(checkedRoles, Math.min(Math.max(3, Math.floor(checkedRoles.length * 0.6)), checkedRoles.length));
+  for (let i = 0; i < activeRoles.length; i++) {
+    const r = activeRoles[i];
+    const qText = generateRoleQuestion(r.key, r.name, changeText, i + 1);
+    const q = {
+      text: qText,
+      level: i < 2 ? "high" : (i < 4 ? "mid" : "low"),
+      category: r.key,
+      owner: r.name,
+      solved: false
+    };
+    globalQuestions.push(q);
+    script.push({role: r.key, name: r.name, text: qText});
+  }
+
+  // PM 针对变更做出回应
+  script.push({
+    role: "pd",
+    name: "产品经理",
+    text: `关于这次变更，我补充说明一下：${generatePdAnswer(changeText, "变更影响")} 大家还有其他顾虑可以继续提。`
+  });
+
+  // 第二轮：2-3 个角色继续追问或反驳
+  const restRoles = checkedRoles.filter(r => !activeRoles.some(ar => ar.key === r.key));
+  const followRoles = pickRandom(
+    restRoles.concat(pickRandom(activeRoles, 1)),
+    Math.min(3, checkedRoles.length - 1)
+  );
+  for (const r of followRoles) {
+    const followText = generateRoleFollowUp(r.key, r.name, changeText);
+    script.push({role: r.key, name: r.name, text: followText});
+    // 追问也作为新增疑点
+    const followQ = {
+      text: followText.length > 45 ? followText.slice(0, 42) + "…" : followText,
+      level: "mid",
+      category: r.key,
+      owner: r.name,
+      solved: false
+    };
+    globalQuestions.push(followQ);
+  }
+
+  // PM 总结变更影响
+  script.push({
+    role: "pd",
+    name: "产品经理",
+    text: "感谢各位的快速反馈。变更带来的影响点我都记录了，会后整理变更影响评估清单，同步给大家确认后再推进开发。"
+  });
+
+  return script;
+}
+
+function parseReviewContent() {
+  const risks = [];
+  globalQuestions.forEach(q => {
+    if (!q.solved) {
+      risks.push({text: q.text, owner: q.owner, level: q.level});
+    }
+  });
+  return {questions: globalQuestions.filter(q => !q.solved), risks};
+}
+
+function calcScore(questionList) {
+  let reqDeduct = 0, techDeduct = 0, deliverDeduct = 0, opDeduct = 0, serviceDeduct = 0;
+  const weightMap = {"high": 8, "mid": 4, "low": 1};
+  questionList.forEach(q => {
+    const w = weightMap[q.level];
+    switch (q.category) {
+      case "pd": reqDeduct += w; break;
+      case "client": case "server": techDeduct += w; break;
+      case "project": deliverDeduct += w; break;
+      case "sales": case "op": opDeduct += w; break;
+      case "test": case "service": serviceDeduct += w; break;
+    }
+  });
+  return {
+    reqComplete: Math.max(40, 90 - reqDeduct),
+    techFeasible: Math.max(40, 90 - techDeduct),
+    deliverCtrl: Math.max(40, 90 - deliverDeduct),
+    opLand: Math.max(40, 90 - opDeduct),
+    serviceFriendly: Math.max(40, 90 - serviceDeduct),
+  }
+}
+
+function generatePRD(scene, req, questionList, riskList) {
+  let riskText = riskList.map(r => `【${r.owner}】${r.text}`).join("\n");
+  return `
+# 产品需求文档（PRD）
+## 1. 基本信息
+业务场景：${scene}
+需求名称：${req}
+迭代版本：V1.0
+评审状态：✅ 评审通过，需求可落地
+
+## 2. 功能概述
+本次功能主要实现用户核心业务能力，补齐现有产品短板，提升用户体验与运营能力。
+经过勾选参会角色全链路评审，需求边界、风险、方案已对齐。
+
+## 3. 业务流程说明
+1. 用户触发核心功能
+2. 系统校验权限、状态、业务规则
+3. 正常流程完成业务闭环
+4. 异常流程统一拦截并弹窗提示
+
+## 4. 前置条件
+- 设备/系统正常联网
+- 用户权限合法
+- 业务数据初始化完成
+
+## 5. 功能详细规则
+- 支持正常业务流程
+- 严格拦截过期/非法/重复操作
+- 服务端做最终数据校验，杜绝前端作弊
+- 所有操作留存日志，可追溯
+
+## 6. 异常场景处理
+- 断网异常：提示网络异常，不允许关键业务提交
+- 数据过期：弹窗明确提示失效原因
+- 重复操作：幂等处理，避免重复扣费/核销
+- 权限不足：拦截并提示权限缺失
+
+## 7. 开发分工
+【H5前端】页面、弹窗、交互、适配
+【客户端】本地缓存、硬件适配、离线逻辑
+【服务端】接口、幂等、数据校验、定时任务
+【测试】全场景覆盖回归
+【运维】日志监控、异常排查
+
+## 8. 运营配置说明
+后台支持参数配置、开关控制、数据监控、活动配置
+
+## 9. 交付与售后说明
+- 版本支持灰度升级
+- 支持一键回滚
+- 全流程日志留存，售后可快速定位问题
+
+## 10. 风险清单与规避方案
+${riskText || "本次评审无重大风险"}
+
+## 11. 上线验收标准
+所有评审通过场景全部实现，无BUG、无兼容问题、运维可稳定维护
+`
+}
+
+function generateConfirmList(scene, req, questionList, riskList) {
+  let itemsHtml = "";
+  questionList.forEach((q, idx) => {
+    const levelText = q.level === "high" ? "高" : q.level === "mid" ? "中" : "低";
+    itemsHtml += `|${idx + 1}|${q.text}|${q.owner}|${levelText}|评审后3个工作日|补齐需求边界，二次评审|\n`
+  });
+  return `
+# 需求待确认清单
+## 1. 基本信息
+业务场景：${scene}
+需求名称：${req}
+迭代版本：V0.1
+评审状态：❌ 疑点较多，暂不进入PRD开发，需要先完成确认
+
+## 2. 评审结论
+本次评审共收集【${questionList.length}】个未对齐疑问，需求边界、硬件兼容、异常方案尚未确认，**暂不具备开发条件**。
+必须完成下面所有待确认项，再次组织二次评审，通过后才可进入PRD交付。
+
+## 3. 待确认条目清单
+|序号|待确认内容|责任岗位|风险等级|目标确认时间|确认后动作|
+| ---- | ---- | ---- | ---- | ---- | ---- |
+${itemsHtml}
+## 4. 二次评审准入条件
+1. 全部待确认项完成确认，输出书面结论
+2. 更新需求文档，补齐缺失边界规则
+3. 重新组织跨角色评审，确认无重大疑点
+
+## 5. 未确认风险
+- 直接开发会出现需求反复、返工、交付延期
+- 硬件不兼容会造成门店现场售后大量客诉
+- 边界缺失，上线后出现大量线上BUG
+`
+}
+
+// ====================== DOM ======================
+const bizSceneSel = document.getElementById("bizScene");
+const roleBox = document.getElementById("roleBox");
+const roleCount = document.getElementById("roleCount");
+const reqInput = document.getElementById("reqInput");
+const chatBox = document.getElementById("chatBox");
+const startBtn = document.getElementById("startBtn");
+const resetBtn = document.getElementById("resetBtn");
+const interveneBtn = document.getElementById("interveneBtn");
+const interveneInput = document.getElementById("interveneInput");
+const endBtn = document.getElementById("endBtn");
+const alertBanner = document.getElementById("alertBanner");
+const statusTag = document.getElementById("statusTag");
+const statusDot = document.getElementById("statusDot");
+const copyResultBtn = document.getElementById("copyResultBtn");
+const genDocBtn = document.getElementById("genDocBtn");
+const docArea = document.getElementById("docArea");
+const docContent = document.getElementById("docContent");
+const todoTable = document.getElementById("todoTable");
+const tabItems = document.querySelectorAll(".tab-item");
+const panels = document.querySelectorAll(".tab-panel");
+const toast = document.getElementById("toast");
+
+let currentSceneKey = "ktv";
+let currentScript = [];
+let ptr = 0;
+let isPlaying = false;
+
+// ====================== Toast ======================
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add("show");
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(() => toast.classList.remove("show"), 1800);
+}
+
+// ====================== 岗位胶囊渲染 ======================
+function renderRoles() {
+  let html = "";
+  ALL_ROLES.forEach((r, idx) => {
+    html += `
+      <div class="role-chip ${r.checked ? 'active' : ''}" data-role-index="${idx}">
+        <span class="dot"></span>
+        <span>${r.name}</span>
+      </div>
+    `;
+  });
+  html += `<div class="role-chip add-custom" id="addCustomRoleCard">+ 自定义职能</div>`;
+  roleBox.innerHTML = html;
+  updateRoleCount();
+
+  document.querySelectorAll(".role-chip").forEach(card => {
+    card.onclick = function () {
+      if (this.id === "addCustomRoleCard") {
+        const inputName = prompt("请输入岗位职能名称：");
+        if (!inputName || inputName.trim() === "") return;
+        const name = inputName.trim();
+        const newKey = "custom_" + Date.now();
+        const newRole = {key: newKey, name: name, avatar: name.slice(0, 2), checked: true};
+        ALL_ROLES.push(newRole);
+        renderRoles();
+        showToast("已新增岗位：" + name);
+        return;
+      }
+      const idx = Number(this.dataset.roleIndex);
+      ALL_ROLES[idx].checked = !ALL_ROLES[idx].checked;
+      this.classList.toggle("active");
+      updateRoleCount();
+    }
+  });
+}
+
+function updateRoleCount() {
+  const count = ALL_ROLES.filter(r => r.checked).length;
+  roleCount.textContent = `已选 ${count} 人`;
+}
+
+// ====================== 场景切换 ======================
+bizSceneSel.onchange = () => {
+  currentSceneKey = bizSceneSel.value;
+  const cfg = sceneConfig[currentSceneKey];
+  reqInput.value = cfg.defaultReq;
+  resetAll();
+}
+
+// ====================== IM消息渲染 ======================
+function appendMessage(item) {
+  const wrap = document.createElement("div");
+  if (item.role === "pd") {
+    wrap.className = `msg-wrap msg-self`;
+  } else {
+    wrap.className = `msg-wrap msg-other`;
+  }
+  const roleInfo = ALL_ROLES.find(x => x.key === item.role);
+  const avatar = roleInfo ? roleInfo.avatar : "?";
+  const now = new Date();
+  const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const interveneTag = item.isIntervene
+    ? `<span class="msg-intervene-tag">人工干预</span>`
+    : ``;
+
+  wrap.innerHTML = `
+    <div class="avatar">${avatar}</div>
+    <div class="msg-box">
+      <div class="msg-name">${item.name}${interveneTag}</div>
+      <div class="msg-text">${item.text}</div>
+      <div class="msg-time">${time}</div>
+    </div>
+  `;
+  chatBox.appendChild(wrap);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function appendSystemMessage(text) {
+  const wrap = document.createElement("div");
+  wrap.className = `msg-wrap msg-system`;
+  wrap.innerHTML = `<div class="msg-box">${text}</div>`;
+  chatBox.appendChild(wrap);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function playList(list) {
+  isPlaying = true;
+  // 播放中锁定按钮状态
+  startBtn.disabled = true;
+  interveneBtn.disabled = true;
+  endBtn.disabled = true;
+  statusTag.textContent = "评审中";
+  statusTag.className = "status-tag running";
+  statusDot.className = "status-dot running";
+
+  while (ptr < list.length) {
+    appendMessage(list[ptr]);
+    ptr++;
+    await sleep(1200);
+  }
+
+  isPlaying = false;
+  // 恢复按钮状态
+  startBtn.disabled = false;
+  interveneBtn.disabled = false;
+  endBtn.disabled = false;
+  // 状态标签保持评审中（未结束前），结束评审时由endBtn处理
+}
+
+// ====================== 重置 ======================
+function resetAll() {
+  chatBox.innerHTML = "";
+  ptr = 0;
+  isPlaying = false;
+  globalQuestions = [];
+  alertBanner.classList.remove("show");
+  docArea.style.display = "none";
+  statusTag.textContent = "待启动";
+  statusTag.className = "status-tag";
+  statusDot.className = "status-dot wait";
+  startBtn.disabled = false;
+  interveneBtn.disabled = false;
+  endBtn.disabled = false;
+  switchTab("chat");
+}
+
+// ====================== Tab切换 ======================
+function switchTab(tabName) {
+  tabItems.forEach(t => {
+    t.classList.toggle("active", t.dataset.tab === tabName);
+  });
+  panels.forEach(p => {
+    p.classList.toggle("active", p.id === `panel-${tabName}`);
+  });
+}
+
+tabItems.forEach(tab => {
+  tab.onclick = function () {
+    switchTab(this.dataset.tab);
+  }
+});
+
+// ====================== 启动评审 ======================
+startBtn.onclick = async () => {
+  if (isPlaying) {
+    showToast("评审正在进行中");
+    return;
+  }
+  resetAll();
+  statusTag.textContent = "评审中";
+  statusTag.className = "status-tag running";
+  statusDot.className = "status-dot running";
+
+  const cfg = sceneConfig[currentSceneKey];
+  if (cfg.buildScript) {
+    currentScript = cfg.buildScript(reqInput.value);
+  } else {
+    currentScript = cfg.script;
+  }
+
+  await playList(currentScript);
+}
+
+resetBtn.onclick = resetAll;
+
+// ====================== 干预逻辑 ======================
+interveneBtn.onclick = async () => {
+  try {
+    const txt = interveneInput.value.trim();
+    if (!txt) {
+      interveneInput.focus();
+      interveneInput.style.borderColor = "var(--danger)";
+      interveneInput.style.boxShadow = "0 0 0 3px rgba(245, 63, 63, 0.12)";
+      showToast("请输入需求变更内容后再提交");
+      setTimeout(() => {
+        interveneInput.style.borderColor = "";
+        interveneInput.style.boxShadow = "";
+      }, 1500);
+      return;
+    }
+    if (isPlaying) {
+      showToast("评审正在进行中，请稍候再提交");
+      return;
+    }
+    if (ptr === 0) {
+      showToast("请先启动评审，再提交变更");
+      return;
+    }
+
+    // 按钮点击反馈：立即置灰防重复提交
+    interveneBtn.disabled = true;
+    alertBanner.classList.add("show");
+    alertBanner.textContent = `已收到需求变更：${txt.slice(0, 40)}${txt.length > 40 ? "…" : ""}`;
+
+    const addScript = buildInterveneScript(txt);
+    currentScript = currentScript.concat(addScript);
+    await playList(addScript);
+
+    interveneInput.value = "";
+    interveneBtn.disabled = false;
+    showToast("变更已注入，评审推演完成");
+
+    // 如果评审已结束（结果面板已展示），实时更新结果
+    if (document.getElementById("scoreResultPanel").classList.contains("show")) {
+      renderResultPanels();
+    }
+  } catch (e) {
+    console.error("提交变更失败：", e);
+    showToast("提交失败，请重试");
+    interveneBtn.disabled = false;
+  }
+}
+
+// ====================== 结束评审 ======================
+endBtn.onclick = () => {
+  if (isPlaying) {
+    showToast("评审正在进行中，请稍候");
+    return;
+  }
+
+  statusTag.textContent = "评审完成";
+  statusTag.className = "status-tag end";
+  statusDot.className = "status-dot end";
+
+  const checkedRoles = getCheckedRoles();
+  const {questions, risks} = parseReviewContent();
+  const highRisks = risks.filter(r => r.level === "high");
+  const midRisks = risks.filter(r => r.level === "mid");
+  const lowRisks = risks.filter(r => r.level === "low");
+  const scoreObj = calcScore(questions);
+
+  renderResultPanels();
+
+  // 待办
+  let todoHtml = "";
+  checkedRoles.forEach(r => {
+    let todoText = "";
+    let priority = "中";
+    let priorityClass = "priority-mid";
+    switch (r.key) {
+      case "pd": todoText = "完善PRD/待确认清单，对齐所有疑问"; priority = "高"; priorityClass = "priority-high"; break;
+      case "sales": todoText = "输出客户卖点、FAQ、统一对外口径"; priority = "高"; priorityClass = "priority-high"; break;
+      case "op": todoText = "更新后台配置手册、监控指标、异常处理"; priority = "中"; priorityClass = "priority-mid"; break;
+      case "project": todoText = "确认升级方案、兼容方案、验收标准"; priority = "高"; priorityClass = "priority-high"; break;
+      case "h5": todoText = "开发页面、弹窗、适配、交互逻辑"; priority = "高"; priorityClass = "priority-high"; break;
+      case "client": todoText = "开发本地逻辑、离线适配、硬件兼容"; priority = "高"; priorityClass = "priority-high"; break;
+      case "server": todoText = "接口、幂等、数据校验、定时任务"; priority = "高"; priorityClass = "priority-high"; break;
+      case "test": todoText = "编写用例、全场景回归、边界测试"; priority = "高"; priorityClass = "priority-high"; break;
+      case "service": todoText = "梳理排查手册、日志监控方案"; priority = "中"; priorityClass = "priority-mid"; break;
+      default: todoText = "完成本次评审分配的专项评估"; priority = "中"; priorityClass = "priority-mid";
+    }
+    todoHtml += `<tr><td>${r.name}</td><td>${todoText}</td><td><span class="priority-tag ${priorityClass}">${priority}</span></td></tr>`;
+  });
+  todoTable.innerHTML = todoHtml;
+
+  // 结果面板展示
+  document.getElementById("scoreResultPanel").classList.add("show");
+  document.getElementById("riskResultPanel").classList.add("show");
+  document.getElementById("todoResultPanel").classList.add("show");
+  document.getElementById("prdResultPanel").classList.add("show");
+
+  showToast("评审已结束，可查看评测结果");
+}
+
+// ====================== 统一渲染结果面板（疑点+评分+风险，同一数据源） ======================
+function renderResultPanels() {
+  const {questions, risks} = parseReviewContent();
+  const highRisks = risks.filter(r => r.level === "high");
+  const midRisks = risks.filter(r => r.level === "mid");
+  const lowRisks = risks.filter(r => r.level === "low");
+  const scoreObj = calcScore(questions);
+
+  // 摘要统计
+  document.getElementById("summaryQuestionCount").textContent = questions.length;
+  document.getElementById("summaryHighCount").textContent = highRisks.length;
+  document.getElementById("summaryMidCount").textContent = midRisks.length;
+  document.getElementById("summaryLowCount").textContent = lowRisks.length;
+
+  // 疑点列表（带勾选框，已解决的划掉）
+  let questionHtml = "";
+  if (globalQuestions.length === 0) {
+    questionHtml = "<div style='font-size:13px;color:var(--text-3);'>本次评审未收集到未对齐疑点</div>";
+  } else {
+    globalQuestions.forEach((q, idx) => {
+      const tagClass = q.level === "high" ? "high" : q.level === "mid" ? "mid" : "low";
+      const levelName = q.level === "high" ? "高风险" : q.level === "mid" ? "中风险" : "低风险";
+      const solvedClass = q.solved ? "is-solved" : "";
+      const checkedAttr = q.solved ? "checked" : "";
+      questionHtml += `
+        <div class="question-item ${solvedClass}" data-q-idx="${idx}">
+          <div class="left">
+            <label class="q-checkbox">
+              <input type="checkbox" data-q-idx="${idx}" ${checkedAttr}/>
+              <span class="q-checkmark"></span>
+            </label>
+            <span class="risk-tag ${tagClass}">${levelName}</span>
+            <span class="q-text">${q.text}</span>
+          </div>
+          <span class="owner">${q.owner}</span>
+        </div>
+      `;
+    });
+  }
+  document.getElementById("summaryQuestionList").innerHTML = questionHtml;
+
+  // 绑定勾选事件
+  document.querySelectorAll("#summaryQuestionList input[type=checkbox]").forEach(cb => {
+    cb.onchange = function () {
+      const idx = Number(this.dataset.qIdx);
+      toggleQuestionSolved(idx, this.checked);
+    };
+  });
+
+  // 分数
+  const scoreData = [
+    {label: "需求完整度", val: scoreObj.reqComplete},
+    {label: "技术可行性", val: scoreObj.techFeasible},
+    {label: "交付可控性", val: scoreObj.deliverCtrl},
+    {label: "运营落地性", val: scoreObj.opLand},
+    {label: "售后运维友好度", val: scoreObj.serviceFriendly},
+  ];
+  let scoreHtml = "";
+  scoreData.forEach(s => {
+    let cls = "good";
+    if (s.val < 70) cls = "bad";
+    else if (s.val < 85) cls = "mid";
+    scoreHtml += `
+      <div class="score-card ${cls}">
+        <div class="score-label">${s.label}</div>
+        <div class="score-value">${s.val}</div>
+        <div class="score-bar"><div class="score-bar-fill" style="width:${s.val}%"></div></div>
+      </div>
+    `;
+  });
+  document.getElementById("scoreGrid").innerHTML = scoreHtml;
+
+  // 风险看板
+  let riskHtml = "";
+  riskHtml += `<div class="risk-card high"><h4>🔴 高风险</h4><div class="risk-list">${highRisks.map(r => `<div class="risk-item"><div class="risk-owner">${r.owner}</div>${r.text}</div>`).join("") || "<div style='font-size:13px;color:var(--text-3);'>无高风险项</div>"}</div></div>`;
+  riskHtml += `<div class="risk-card mid"><h4>🟠 中风险</h4><div class="risk-list">${midRisks.map(r => `<div class="risk-item"><div class="risk-owner">${r.owner}</div>${r.text}</div>`).join("") || "<div style='font-size:13px;color:var(--text-3);'>无中风险项</div>"}</div></div>`;
+  riskHtml += `<div class="risk-card low"><h4>🟢 低风险</h4><div class="risk-list">${lowRisks.map(r => `<div class="risk-item"><div class="risk-owner">${r.owner}</div>${r.text}</div>`).join("") || "<div style='font-size:13px;color:var(--text-3);'>无低风险项</div>"}</div></div>`;
+  document.getElementById("riskGrid").innerHTML = riskHtml;
+
+  // 同步更新交付文档数据源
+  window.__reviewResult = {questions, risks};
+}
+
+// 疑点勾选：切换已解决状态，实时重算
+function toggleQuestionSolved(idx, solved) {
+  if (!globalQuestions[idx]) return;
+  globalQuestions[idx].solved = solved;
+  // 重新渲染所有面板（统一数据源）
+  renderResultPanels();
+  showToast(solved ? "已标记为已解决，评分已更新" : "已恢复为未解决");
+}
+
+// ====================== 生成交付文档 ======================
+genDocBtn.onclick = () => {
+  if (!window.__reviewResult) {
+    showToast("请先结束评审");
+    return;
+  }
+  docArea.style.display = "block";
+  const result = window.__reviewResult || parseReviewContent();
+  const {questions, risks} = result;
+  const sceneName = bizSceneSel.options[bizSceneSel.selectedIndex].text;
+  const req = reqInput.value;
+  if (questions.length >= 3) {
+    docContent.innerText = generateConfirmList(sceneName, req, questions, risks);
+  } else {
+    docContent.innerText = generatePRD(sceneName, req, questions, risks);
+  }
+  showToast("交付文档已生成");
+}
+
+copyResultBtn.onclick = () => {
+  if (!docContent.innerText) {
+    showToast("请先生成交付文档");
+    return;
+  }
+  navigator.clipboard.writeText(docContent.innerText);
+  showToast("结果已复制");
+}
+
+// ====================== 业务场景配置 ======================
+const sceneConfig = {
+  ktv: {
+    defaultReq: "KTV点歌机新增数字人跳舞功能，点歌后可触发数字人舞蹈展示",
+    roles: ALL_ROLES,
+    buildScript: (userReq) => buildKtvMultiScript(userReq)
+  },
+  car: {
+    defaultReq: "车载终端新增语音导航+离线POI搜索功能，行驶中禁止手动输入目的地",
+    roles: ALL_ROLES,
+    script: [
+      {role:"pd",name:"产品经理",text:"本次需求：车载车机新增语音导航、离线POI检索，行驶中锁定手动输入。"},
+      {role:"sales",name:"销售/售前",text:"可作为新车选配卖点，客户关心离线包大小、更新费用、识别准确率。"},
+      {role:"op",name:"运营",text:"是否支持后台配置城市包、版本灰度、用户使用数据统计？"},
+      {role:"project",name:"项目实施",text:"OTA升级是否整车重启？不同芯片机型是否全部兼容？"},
+      {role:"h5",name:"H5/前端开发",text:"车机大屏UI适配、弹窗安全提示、行驶状态样式锁定。"},
+      {role:"client",name:"客户端研发",text:"离线包解压、本地检索、CAN信号读取稳定性需要保障。"},
+      {role:"server",name:"服务端研发",text:"离线包版本管理、灰度推送、用户行为上报接口开发。"},
+      {role:"test",name:"测试工程师",text:"高低速行驶、弱网、多版本车机、语音嘈杂环境专项测试。"},
+      {role:"service",name:"售后运维",text:"升级失败回滚机制、用户异常投诉问题是否有日志追踪。"},
+      {role:"pd",name:"产品经理",text:"OTA静默升级、行驶CAN信号锁定UI、离线包800M、全机型适配、后台灰度可控。"}
+    ]
+  },
+  saas: {
+    defaultReq: "SaaS后台新增客户自动分级体系，按消费金额划分等级，支持手动调整与降级预警",
+    roles: ALL_ROLES,
+    script: [
+      {role:"pd",name:"产品经理",text:"SaaS平台新增客户自动分级，支持等级手动调整、降级预警。"},
+      {role:"sales",name:"销售/售前",text:"可作为高级版增值功能，客户关心规则透明、等级公平。"},
+      {role:"op",name:"运营",text:"支持配置阈值、预警周期、消息模板，需要数据看板。"},
+      {role:"project",name:"项目实施",text:"存量客户是否一次性重算？是否影响线上业务？"},
+      {role:"h5",name:"H5/前端开发",text:"客户中心等级展示、预警弹窗、等级变更记录页面开发。"},
+      {role:"client",name:"客户端研发",text:"无客户端特殊逻辑，依赖接口数据渲染。"},
+      {role:"server",name:"服务端研发",text:"定时任务计算等级、预警消息推送、操作日志审计。"},
+      {role:"test",name:"测试工程师",text:"边界金额、批量重算、降级预警、手动修改全覆盖测试。"},
+      {role:"service",name:"售后运维",text:"客户申诉工单是否支持快速查询等级变更记录。"},
+      {role:"pd",name:"产品经理",text:"凌晨低峰重算、全日志审计、7天降级预警、规则完全透明可查。"}
+    ]
+  },
+  app: {
+    defaultReq: "移动端APP新增积分商城，支持积分兑换实物、库存管控、兑换记录查询",
+    roles: ALL_ROLES,
+    script: [
+      {role:"pd",name:"产品经理",text:"APP上线积分商城，用户可兑换实物礼品，包含库存管控与记录查询。"},
+      {role:"sales",name:"销售/售前",text:"提升用户留存与活跃度，可作为会员权益卖点。"},
+      {role:"op",name:"运营",text:"支持配置礼品、库存上限、活动限时积分翻倍、数据统计。"},
+      {role:"project",name:"项目实施",text:"无部署压力，纯版本迭代。"},
+      {role:"h5",name:"H5/前端开发",text:"商城页面、兑换弹窗、缺货状态、记录列表开发。"},
+      {role:"client",name:"客户端研发",text:"积分扣减本地校验、状态同步、离线容错。"},
+      {role:"server",name:"服务端研发",text:"积分扣减幂等、库存锁、订单生成、消息推送。"},
+      {role:"test",name:"测试工程师",text:"积分不足、库存为0、重复兑换、退款退回积分全场景测试。"},
+      {role:"service",name:"售后运维",text:"用户兑换失败、未发货投诉可后台查询订单日志。"},
+      {role:"pd",name:"产品经理",text:"后端强校验防作弊、库存锁机制、全场景容错、运营可灵活配置。"}
+    ]
+  },
+  web: {
+    defaultReq: "Web管理后台新增实时数据大屏，展示业务指标、异常标红、权限分级查看",
+    roles: ALL_ROLES,
+    script: [
+      {role:"pd",name:"产品经理",text:"运营后台新增实时数据大屏，支持指标监控、异常告警、权限分级查看。"},
+      {role:"sales",name:"销售/售前",text:"可作为企业数字化管理亮点，提升客户观感。"},
+      {role:"op",name:"运营",text:"需要实时监控、异常告警、数据导出、权限隔离。"},
+      {role:"project",name:"项目实施",text:"无硬件依赖，纯后台功能迭代。"},
+      {role:"h5",name:"H5/前端开发",text:"可视化图表、实时刷新、权限控制、自适应布局。"},
+      {role:"client",name:"客户端研发",text:"无客户端开发。"},
+      {role:"server",name:"服务端研发",text:"数据聚合、websocket推送、行级权限过滤。"},
+      {role:"test",name:"测试工程师",text:"大数据量、高并发、权限隔离、异常数据测试。"},
+      {role:"service",name:"售后运维",text:"大屏异常、数据缺失可快速定位接口问题。"},
+      {role:"pd",name:"产品经理",text:"实时ws推送、行级权限隔离、异常标红告警、数据缓存优化。"}
+    ]
+  }
+};
+
+// ====================== 初始化 ======================
+renderRoles();
+bizSceneSel.onchange();
+switchTab("chat");
+</script>
+</body>
+</html>
